@@ -1,12 +1,49 @@
 import tkinter as tk
+import importlib
+import subprocess
 import speech_recognition as sr
 import pyttsx3
 from googletrans import Translator
+
+# Função para verificar e instalar pacotes necessários
+def check_package_installed(package):
+    try:
+        importlib.import_module(package)
+        print(f"{package} está instalado.")
+    except ImportError:
+        print(f"{package} não está instalado. Instalando...")
+        subprocess.check_call(["pip", "install", package])
+        print(f"{package} foi instalado com sucesso.")
+
+# Verificar e instalar pacotes necessários
+packages = ["speech_recognition", "pyttsx3", "googletrans==4.0.0-rc1"]
+
+for package in packages:
+    check_package_installed(package)
 
 # Inicialização do reconhecedor de fala, do mecanismo de síntese de voz e do tradutor
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
 translator = Translator()
+
+
+# Configurações da voz
+voices = engine.getProperty('voices')
+if len(voices) > 0:
+    engine.setProperty('voice', voices[0].id)  # Use a primeira voz da lista
+else:
+    print("Nenhuma voz encontrada. Usando voz padrão.")
+
+# Configurações de velocidade e volume
+engine.setProperty('rate', 150)  # Valor ajustável para controlar a velocidade da fala
+engine.setProperty('volume', 0.8)  # Valor ajustável para controlar o volume da fala
+
+
+# Configurações de velocidade e volume
+engine.setProperty('rate', 150)  # Valor ajustável para controlar a velocidade da fala
+engine.setProperty('volume', 0.8)  # Valor ajustável para controlar o volume da fala
+
+# Restante do código...
 
 def listen():
     with sr.Microphone() as source:
@@ -39,9 +76,6 @@ def start_assistant():
         response = "Você disse: " + translated_input
         print(f"Assistente: {response}")
         speak(response)
-
-# Configuração da velocidade da fala
-engine.setProperty('rate', 150)  # Valor ajustável para controlar a velocidade
 
 # Criação da interface gráfica usando Tkinter
 window = tk.Tk()
